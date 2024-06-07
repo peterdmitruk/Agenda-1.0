@@ -26,6 +26,7 @@ public class TelaInicio extends javax.swing.JFrame {
      */
     public TelaInicio() {
         initComponents();
+        fillTable();
         txtTelefone.setFocusLostBehavior(JFormattedTextField.COMMIT);
         txtRowId.setVisible(false);
         txtTelefone.setText("00000000000");
@@ -246,6 +247,7 @@ public class TelaInicio extends javax.swing.JFrame {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         //CHAMA O METODO PARA ADICIONAR UM CONTATO
         addContato();
+        
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
@@ -330,7 +332,12 @@ private void connectDb(){
         pstm.setString(1, txtNome.getText());
         pstm.setString(2, txtTelefone.getText());
         pstm.executeUpdate();
+        
+        DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
+        Object[] dados = {txtNome.getText(), txtTelefone.getText()};
+        tabela.addRow(dados);
         JOptionPane.showMessageDialog(null, "Contato Adicionado Com Sucesso!");
+        conexao.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null,"ERRO AO ADICIONAR CONTATO -> "+ e);
         }
@@ -350,8 +357,29 @@ private void connectDb(){
         btnAdd.setEnabled(true);
     }
     
-    private void preencherTable(){
-    DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
+    private void fillTable(){
+        
+        String sql = "jdbc:sqlite:contatos.db";
+        String sql2 = "SELECT * FROM contatos";
+        try {
+            DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
+            
+            conexao = DriverManager.getConnection(sql);
+            pstm = conexao.prepareStatement(sql2);
+            rs = pstm.executeQuery();
+            
+            while (rs.next()) {
+            Object[] contatosDb = {rs.getString("nome"),rs.getString("telefone")};
+            tabela.addRow(contatosDb);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "ERRO AO BUSCAR DADOS PARA TABELA DE CONTATOS -> " + e);
+        }
+        
+        
+        
+    
+    
     
     }
 }
