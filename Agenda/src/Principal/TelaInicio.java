@@ -5,17 +5,25 @@
  */
 package Principal;
 
+import java.sql.*;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dmitruk
  */
 public class TelaInicio extends javax.swing.JFrame {
 
+    private Connection conexao;
+    private PreparedStatement pstm;
+    private ResultSet rs;
+    private String sql;
     /**
      * Creates new form TelaInicio
      */
     public TelaInicio() {
         initComponents();
+        createDb();
     }
 
     /**
@@ -271,4 +279,26 @@ public class TelaInicio extends javax.swing.JFrame {
     private javax.swing.JTextField txtPesquisar;
     private javax.swing.JFormattedTextField txtTelefone;
     // End of variables declaration//GEN-END:variables
+
+private void createDb(){
+    
+    sql = "jdbc:sqlite:contatos.db";
+    try{
+    conexao = DriverManager.getConnection(sql);
+    }catch(Exception e){
+        JOptionPane.showMessageDialog(null,"ERRO AO CONECTAR COM BANCO DE DADOS" + e);
+    }
+}
+
+private void createTable(){
+    sql = "CREATE TABLE contatos (nome VARCHAR(40) NOT NULL, telefone VARCHAR(20) NOT NULL)";
+    
+    try {
+        
+    } catch (Exception e) {
+    }
+    
+    
+}
+    
 }
