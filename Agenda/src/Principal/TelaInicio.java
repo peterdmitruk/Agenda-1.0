@@ -28,7 +28,7 @@ public class TelaInicio extends javax.swing.JFrame {
         initComponents();
         fillTable();
         txtTelefone.setFocusLostBehavior(JFormattedTextField.COMMIT);
-        txtRowId.setVisible(false);
+        //txtRowId.setVisible(false);
         txtTelefone.setText("00000000000");
         connectDb();
     }
@@ -93,6 +93,11 @@ public class TelaInicio extends javax.swing.JFrame {
         });
         tblContatos.getTableHeader().setResizingAllowed(false);
         tblContatos.getTableHeader().setReorderingAllowed(false);
+        tblContatos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblContatosMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tblContatos);
 
         btnAdd.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Principal/create.png"))); // NOI18N
@@ -111,6 +116,11 @@ public class TelaInicio extends javax.swing.JFrame {
         btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Principal/delete.png"))); // NOI18N
         btnDelete.setToolTipText("EXCLUIR");
         btnDelete.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         btnClear.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Principal/apagador.png"))); // NOI18N
         btnClear.setToolTipText("LIMPAR CAMPOS");
@@ -255,6 +265,16 @@ public class TelaInicio extends javax.swing.JFrame {
         clearCampos();
     }//GEN-LAST:event_btnClearActionPerformed
 
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        //CHAMA METODO PARA DELETAR CONTATO
+        deleteContatos();
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void tblContatosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblContatosMouseClicked
+        //CHAMA O METODO PARA SETAR CAMPOS COM DADOS DA TABELA
+        selectedRow();
+    }//GEN-LAST:event_tblContatosMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -346,8 +366,48 @@ private void connectDb(){
     
     }
     private void deleteContatos(){
+        String conn = "jdbc:sqlite:contatos.db";
+        String del = "DELETE FROM contatos WHERE rowid = ?";
+        DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
+        
     
+        try {
+            conexao = DriverManager.getConnection(conn);
+            pstm = conexao.prepareStatement(del);
+            
+            
+            pstm.executeUpdate();
+            
+            tabela.removeRow(1);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "ERRO AO EXCLUIR CONTATO " + e," ATENÇÃO ", JOptionPane.OK_OPTION);
+        }
     }
+    
+    private void selectedRow(){
+        int i = tblContatos.getSelectedRow();
+        String sql = "jdbc:sqlite:contatos.db";
+        String sql2 = "SELECT ROWID FROM contatos WHERE nome = ? AND telefone = ?";
+        
+        DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
+        txtNome.setText(tabela.getValueAt(i, 0).toString());
+        txtTelefone.setText(tabela.getValueAt(i, 1).toString());
+        try {
+            conexao = DriverManager.getConnection(sql);
+            pstm = conexao.prepareStatement(sql2);
+            pstm.setString(1, txtNome.getText());
+            pstm.setString(2, txtTelefone.getText());
+            rs = pstm.executeQuery();
+            txtRowId.setText(rs.getString("RowId"));
+            
+            
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"ERRO AO PESQUISAR CONTATO COM BANCO DE DADOS " + e, "ATENÇÃO", JOptionPane.OK_OPTION);
+        }
+        
+        
+    }    
     
     private void clearCampos(){
         txtNome.setText(null);
