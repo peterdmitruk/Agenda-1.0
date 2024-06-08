@@ -1,0 +1,82 @@
+METODOS IMPLEMENTADOS:
+--------------------------------------------------------
+SOBRE AS ATUALIZAÇÕES EXECUTADAS NO SISTEMA.
+--------------------------------------------------------
+
+connectDb:
+
+Metodo para se conectar ao banco de dados e
+criar uma tabela pelo driver jdbc.sqlite
+caso haja algum erro, uma mensagem de alerta será
+emitida com a log do erro.
+
+--------------------------------------------------------
+
+addContato:
+
+Metodo para inserir contatos no banco de dados e 
+na tabela do sistema atualizando a adição de um contato
+em tempo real.
+
+- Validações implementadas para certificar que não 
+seja adicionado um contato em branco, emitindo um 
+alerta ao usuário caso clique no botão adicionar
+e os campos estejam em branco.
+
+--------------------------------------------------------
+
+updateContatos:
+
+Metodo para atualizar contatos no banco de dados usando como parâmetro a RowID que é criada automaticamente
+pelo sqlite, atualizando simultaneamente no banco de dados e em nossa tabela de contatos.
+
+- Validações implementadas para certificar e evitar que:
+1º Que o usuário clique por acidente no botão e atualize um cadastro em branco sem que nenhum contato tenha sido
+selecionado na tabela de contatos, emitindo um aviso
+que um contato tem que ser selecionado para ser alterado.
+
+2º Seja Atualizado um contato com campos em branco, emitindo um aviso que todos os campos precisam ser preenchidos para que seja efetivada a atualização do contato
+
+
+--------------------------------------------------------
+
+deleteContatos:
+
+Metodo para deletar contatos do banco de dados e simultaneamente da tabela de contatos.
+
+-Validações implementadas para notificar o usuário que nenhum contato foi selecionado para ser excluido e também emitindo um aviso para confirmação da ação de exclusão quando um contato estiver selecionado e o usuário clicar no botão excluir, evitando assim que o usuário exclua um contato por acidente.
+
+
+--------------------------------------------------------
+
+selectedRow:
+
+Metodo para preencher campos NOME, TELEFONE, E ROWID(campo que fica oculto do usuário) quando um contato da tabela é selecionado, nesse metodo cada vez que um contato é selecionado é requisitado o RowID do banco de dados para caso haja intenção do usuário excluir ou alterar o contato
+
+-Implementado o bloqueio do botão ADICIONAR quanto um contato existente na tabela é selecionado evitando que o usuário possa adicionar um contato que já está no banco de dados duplicando esse contato, sugerindo ao usuário que entende-se que quando selecionado um contato a intenção seja EXCLUIR OU ALTERAR.
+
+
+--------------------------------------------------------
+
+clearCampos:
+
+Metodo para limpar todos os campos, seja após adicionar um novo contato, após excluir ou após alterar, e também para ser usado quando o usuário deseja limpar todos os campos habilitando todas as funionalidades do sistema.
+
+
+--------------------------------------------------------
+
+fillTable:
+
+Metodo para popular a tabela de contatos assim que o sistema ser iniciado, mantendo a tabela sempre atualizada com o banco de dados ao iniciar o sistema e feito a busca dos contatos no banco de dados e inseridos na tabela de contatos.
+
+
+--------------------------------------------------------
+
+pesquisaContatos:
+
+Metodo para atualizar a tabela em tempo real comforme as letras digitadas no campo de pesquisa de contatos, organizando a tabela de contatos conforme o usuário digita as letras no campo de pesquisa, usando a biblioteca RS2Xml.jar
+
+--------------------------------------------------------
+
+Essas foram as atualizações feitas hoje em breve mais...
+Segestões, criticas e indicações de estudos são bem vindas muito obrigado a todos!!!
