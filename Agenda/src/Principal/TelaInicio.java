@@ -20,7 +20,7 @@ public class TelaInicio extends javax.swing.JFrame {
     private Connection conexao;
     private PreparedStatement pstm;
     private ResultSet rs;
-    
+
     /**
      * Creates new form TelaInicio
      */
@@ -28,11 +28,9 @@ public class TelaInicio extends javax.swing.JFrame {
         initComponents();
         fillTable();
         txtTelefone.setFocusLostBehavior(JFormattedTextField.COMMIT);
-        //txtRowId.setVisible(false);
-        txtTelefone.setText("00000000000");
+        txtRowId.setVisible(false);
         connectDb();
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -112,6 +110,11 @@ public class TelaInicio extends javax.swing.JFrame {
         btnUpdate.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Principal/update.png"))); // NOI18N
         btnUpdate.setToolTipText("ALTERAR");
         btnUpdate.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnUpdate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateActionPerformed(evt);
+            }
+        });
 
         btnDelete.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Principal/delete.png"))); // NOI18N
         btnDelete.setToolTipText("EXCLUIR");
@@ -154,6 +157,11 @@ public class TelaInicio extends javax.swing.JFrame {
                 txtPesquisarActionPerformed(evt);
             }
         });
+        txtPesquisar.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtPesquisarKeyReleased(evt);
+            }
+        });
 
         jLabel7.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel7.setText("NOME :");
@@ -169,7 +177,7 @@ public class TelaInicio extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(8, 8, 8)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -182,7 +190,7 @@ public class TelaInicio extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -207,7 +215,7 @@ public class TelaInicio extends javax.swing.JFrame {
                                 .addComponent(txtTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(txtRowId, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap())
+                .addGap(8, 8, 8))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -257,7 +265,6 @@ public class TelaInicio extends javax.swing.JFrame {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         //CHAMA O METODO PARA ADICIONAR UM CONTATO
         addContato();
-        
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
@@ -274,6 +281,17 @@ public class TelaInicio extends javax.swing.JFrame {
         //CHAMA O METODO PARA SETAR CAMPOS COM DADOS DA TABELA
         selectedRow();
     }//GEN-LAST:event_tblContatosMouseClicked
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        //CHAMA O METODO PARA ALTERAR CONTATOS NO BANCO DE DADOS
+        updateContatos();
+    }//GEN-LAST:event_btnUpdateActionPerformed
+
+    private void txtPesquisarKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPesquisarKeyReleased
+        // CHAMA O EVENTO DE INTERAÇÃO EM TEMPO REAL PESQUISANDO CONTATOS
+        // ENQUANTO DIGITANDO
+        pesquisarContatos();
+    }//GEN-LAST:event_txtPesquisarKeyReleased
 
     /**
      * @param args the command line arguments
@@ -333,62 +351,110 @@ public class TelaInicio extends javax.swing.JFrame {
     private javax.swing.JFormattedTextField txtTelefone;
     // End of variables declaration//GEN-END:variables
 
-private void connectDb(){
-    String sql2 = "CREATE TABLE IF NOT EXISTS contatos(nome VARCHAR(40) NOT NULL, telefone VARCHAR(20) NOT NULL)";
-    String sql = "jdbc:sqlite:contatos.db";
-    try{
-    conexao = DriverManager.getConnection(sql);
-    pstm = conexao.prepareStatement(sql2);
-    pstm.execute();
-    }catch(Exception e){
-        JOptionPane.showMessageDialog(null,"ERRO AO CONECTAR COM BANCO DE DADOS -> " + e);
-    }
-}
-    private void addContato(){
-        String sql = "INSERT INTO contatos (nome, telefone) values(?,?)";
+    private void connectDb() {
+        String sql2 = "CREATE TABLE IF NOT EXISTS contatos(nome VARCHAR(40) NOT NULL, telefone VARCHAR(20) NOT NULL)";
+        String sql = "jdbc:sqlite:contatos.db";
         try {
-            connectDb();
-        pstm = conexao.prepareStatement(sql);
-        pstm.setString(1, txtNome.getText());
-        pstm.setString(2, txtTelefone.getText());
-        pstm.executeUpdate();
-        
-        DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
-        Object[] dados = {txtNome.getText(), txtTelefone.getText()};
-        tabela.addRow(dados);
-        JOptionPane.showMessageDialog(null, "Contato Adicionado Com Sucesso!");
-        conexao.close();
+            conexao = DriverManager.getConnection(sql);
+            pstm = conexao.prepareStatement(sql2);
+            pstm.execute();
+            conexao.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"ERRO AO ADICIONAR CONTATO -> "+ e);
+            JOptionPane.showMessageDialog(null, "ERRO AO CONECTAR COM BANCO DE DADOS -> " + e, "ERRO!", JOptionPane.OK_OPTION);
         }
     }
-    private void updateContatos(){
-    
+
+    private void addContato() {
+        String sql = "INSERT INTO contatos (nome, telefone) values(?,?)";
+        String sql2 = "jdbc:sqlite:contatos.db";
+        try {
+            if ((txtNome.getText().isEmpty()) || (txtTelefone.getText().equals("(  ) .    -    ")) || (txtTelefone.getText().equals("().-"))) {
+                JOptionPane.showMessageDialog(null, "Preencha todos os campos para adicionar um contato! ", "ATENÇÃO", JOptionPane.OK_OPTION);
+            } else {
+                conexao = DriverManager.getConnection(sql2);
+                pstm = conexao.prepareStatement(sql);
+                pstm.setString(1, txtNome.getText());
+                pstm.setString(2, txtTelefone.getText());
+                pstm.executeUpdate();
+
+                DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
+                Object[] dados = {txtNome.getText(), txtTelefone.getText()};
+                tabela.addRow(dados);
+                JOptionPane.showMessageDialog(null, "Contato Adicionado Com Sucesso!");
+                clearCampos();
+                conexao.close();
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "ERRO AO ADICIONAR CONTATO -> " + e, "ERRO!", JOptionPane.OK_OPTION);
+        }
     }
-    private void deleteContatos(){
+
+    private void updateContatos() {
+        int i = tblContatos.getSelectedRow();
+        DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
+        String sql = "jdbc:sqlite:contatos.db";
+        String sql2 = "UPDATE contatos SET nome = ?, telefone = ? WHERE ROWID = ?";
+        try {
+            if (i < 0) {
+                JOptionPane.showMessageDialog(null, "Selecione um contato para Alterar! ", "ATENÇÃO", JOptionPane.OK_OPTION);
+            } else {
+                if ((txtNome.getText().isEmpty()) || (txtTelefone.getText().equals("().-")) || (txtTelefone.getText().equals("(  ) .    -    ")) || (txtRowId.getText().isEmpty())) {
+                    JOptionPane.showMessageDialog(null, "Preencha todos os campos para atualizar o contato! ", "ATENÇÃO", JOptionPane.OK_OPTION);
+                } else {
+                    conexao = DriverManager.getConnection(sql);
+                    pstm = conexao.prepareStatement(sql2);
+                    pstm.setString(1, txtNome.getText());
+                    pstm.setString(2, txtTelefone.getText());
+                    pstm.setString(3, txtRowId.getText());
+                    pstm.executeUpdate();
+                    conexao.close();
+                    tabela.setValueAt(txtNome.getText(), i, 0);
+                    tabela.setValueAt(txtTelefone.getText(), i, 1);
+                    clearCampos();
+                    JOptionPane.showMessageDialog(null, "Contato atualizado com sucesso ");
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "ERRO AO ATUALIZAR O CONTATO NO BANCO DE DADOS -> " + e, "ATENÇÃO", JOptionPane.OK_OPTION);
+        }
+    }
+
+    private void deleteContatos() {
+        int i = tblContatos.getSelectedRow();
+        DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
         String conn = "jdbc:sqlite:contatos.db";
         String del = "DELETE FROM contatos WHERE rowid = ?";
-        DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
-        
-    
         try {
-            conexao = DriverManager.getConnection(conn);
+
+            if (i < 0) {
+                JOptionPane.showMessageDialog(null, "Selecione um contato para Exluir ", "ATENÇÃO", JOptionPane.OK_OPTION);
+            } else {
+                conexao = DriverManager.getConnection(conn);
             pstm = conexao.prepareStatement(del);
-            
-            
-            pstm.executeUpdate();
-            
-            tabela.removeRow(1);
+            pstm.setString(1, txtRowId.getText());
+            int opt = JOptionPane.showConfirmDialog(null, "Deseja mesmo excluir o contato \nEssa ação não podera ser desfeita", "ATENÇÃO", JOptionPane.YES_NO_OPTION);
+
+            if (opt == JOptionPane.YES_OPTION) {
+                pstm.executeUpdate();
+                tabela.removeRow(tblContatos.getSelectedRow());
+            } else {
+                clearCampos();
+            }
+            }
+            conexao.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "ERRO AO EXCLUIR CONTATO " + e," ATENÇÃO ", JOptionPane.OK_OPTION);
+            JOptionPane.showMessageDialog(null, "ERRO AO EXCLUIR CONTATO " + e, " ATENÇÃO ", JOptionPane.OK_OPTION);
         }
     }
-    
-    private void selectedRow(){
+
+    private void selectedRow() {
+        btnAdd.setEnabled(false);
+
         int i = tblContatos.getSelectedRow();
         String sql = "jdbc:sqlite:contatos.db";
         String sql2 = "SELECT ROWID FROM contatos WHERE nome = ? AND telefone = ?";
-        
+
         DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
         txtNome.setText(tabela.getValueAt(i, 0).toString());
         txtTelefone.setText(tabela.getValueAt(i, 1).toString());
@@ -399,47 +465,58 @@ private void connectDb(){
             pstm.setString(2, txtTelefone.getText());
             rs = pstm.executeQuery();
             txtRowId.setText(rs.getString("RowId"));
-            
-            
-            
+            conexao.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,"ERRO AO PESQUISAR CONTATO COM BANCO DE DADOS " + e, "ATENÇÃO", JOptionPane.OK_OPTION);
+            JOptionPane.showMessageDialog(null, "ERRO AO PESQUISAR CONTATO COM BANCO DE DADOS " + e, "ATENÇÃO", JOptionPane.OK_OPTION);
         }
-        
-        
-    }    
-    
-    private void clearCampos(){
+
+    }
+
+    private void clearCampos() {
+        tblContatos.clearSelection();
         txtNome.setText(null);
-        txtTelefone.setText("00000000000");
+        txtTelefone.setText(null);
         txtPesquisar.setText(null);
         txtRowId.setText(null);
         btnAdd.setEnabled(true);
+
     }
-    
-    private void fillTable(){
-        
+
+    private void fillTable() {
+
         String sql = "jdbc:sqlite:contatos.db";
         String sql2 = "SELECT * FROM contatos";
         try {
             DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
-            
+
             conexao = DriverManager.getConnection(sql);
             pstm = conexao.prepareStatement(sql2);
             rs = pstm.executeQuery();
-            
+
             while (rs.next()) {
-            Object[] contatosDb = {rs.getString("nome"),rs.getString("telefone")};
-            tabela.addRow(contatosDb);
+                Object[] contatosDb = {rs.getString("nome"), rs.getString("telefone")};
+                tabela.addRow(contatosDb);
             }
+            conexao.close();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "ERRO AO BUSCAR DADOS PARA TABELA DE CONTATOS -> " + e);
+            JOptionPane.showMessageDialog(null, "ERRO AO BUSCAR DADOS PARA TABELA DE CONTATOS -> " + e, "ERRO!", JOptionPane.OK_OPTION);
         }
-        
-        
-        
-    
-    
-    
+    }
+
+    private void pesquisarContatos() {
+        String sql = "jdbc:sqlite:contatos.db";
+        String sql2 = "SELECT * FROM contatos WHERE nome LIKE ?";
+
+        try {
+            conexao = DriverManager.getConnection(sql);
+            pstm = conexao.prepareStatement(sql2);
+            pstm.setString(1, txtPesquisar.getText() + "%");
+            rs = pstm.executeQuery();
+            tblContatos.setModel(DbUtils.resultSetToTableModel(rs));
+            conexao.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "ERRO AO PESQUISAR CONTATOS NO BANCO DE DADOS -> " + e, "ATENÇÃO", JOptionPane.OK_OPTION);
+        }
+
     }
 }
