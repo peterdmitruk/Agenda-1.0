@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import net.proteanit.sql.DbUtils;
 
+
 /**
  *
  * @author Dmitruk
@@ -30,6 +31,9 @@ public class TelaInicio extends javax.swing.JFrame {
         txtTelefone.setFocusLostBehavior(JFormattedTextField.COMMIT);
         txtRowId.setVisible(false);
         connectDb();
+        txtTelefone.setDocument(new LimitaCaracteres(15, LimitaCaracteres.TipoEntrada.TELEFONE));
+        clearCampos();
+        txtTelefone.setText(null);
     }
 
     /**
@@ -151,6 +155,17 @@ public class TelaInicio extends javax.swing.JFrame {
         } catch (java.text.ParseException ex) {
             ex.printStackTrace();
         }
+        txtTelefone.setFocusLostBehavior(javax.swing.JFormattedTextField.COMMIT);
+        txtTelefone.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txtTelefoneFocusGained(evt);
+            }
+        });
+        txtTelefone.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtTelefoneMouseClicked(evt);
+            }
+        });
 
         txtPesquisar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -264,7 +279,7 @@ public class TelaInicio extends javax.swing.JFrame {
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         //CHAMA O METODO PARA ADICIONAR UM CONTATO
-        addContato();
+            addContato();
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
@@ -293,10 +308,20 @@ public class TelaInicio extends javax.swing.JFrame {
         pesquisarContatos();
     }//GEN-LAST:event_txtPesquisarKeyReleased
 
+    private void txtTelefoneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtTelefoneMouseClicked
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_txtTelefoneMouseClicked
+
+    private void txtTelefoneFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtTelefoneFocusGained
+        // TODO add your handling code here
+    }//GEN-LAST:event_txtTelefoneFocusGained
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -368,9 +393,12 @@ public class TelaInicio extends javax.swing.JFrame {
         String sql = "INSERT INTO contatos (nome, telefone) values(?,?)";
         String sql2 = "jdbc:sqlite:contatos.db";
         try {
-            if ((txtNome.getText().isEmpty()) || (txtTelefone.getText().equals("(  ) .    -    ")) || (txtTelefone.getText().equals("().-"))) {
-                JOptionPane.showMessageDialog(null, "Preencha todos os campos para adicionar um contato! ", "ATENÇÃO", JOptionPane.OK_OPTION);
-            } else {
+            int i = txtTelefone.getText().replaceAll("\\s+", "").length();
+            if (txtNome.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "O campo nome deve ser preenchido para adicionar um contato! ", "ATENÇÃO", JOptionPane.OK_OPTION);
+            } else if (i < 15){
+                JOptionPane.showMessageDialog(null, "Preencha corretamente o numero de telefone para adicionar um contato","ANTEÇÃO", JOptionPane.OK_OPTION);
+            } else{
                 conexao = DriverManager.getConnection(sql2);
                 pstm = conexao.prepareStatement(sql);
                 pstm.setString(1, txtNome.getText());
@@ -402,17 +430,28 @@ public class TelaInicio extends javax.swing.JFrame {
                 if ((txtNome.getText().isEmpty()) || (txtTelefone.getText().equals("().-")) || (txtTelefone.getText().equals("(  ) .    -    ")) || (txtRowId.getText().isEmpty())) {
                     JOptionPane.showMessageDialog(null, "Preencha todos os campos para atualizar o contato! ", "ATENÇÃO", JOptionPane.OK_OPTION);
                 } else {
-                    conexao = DriverManager.getConnection(sql);
-                    pstm = conexao.prepareStatement(sql2);
-                    pstm.setString(1, txtNome.getText());
-                    pstm.setString(2, txtTelefone.getText());
-                    pstm.setString(3, txtRowId.getText());
-                    pstm.executeUpdate();
-                    conexao.close();
-                    tabela.setValueAt(txtNome.getText(), i, 0);
-                    tabela.setValueAt(txtTelefone.getText(), i, 1);
-                    clearCampos();
-                    JOptionPane.showMessageDialog(null, "Contato atualizado com sucesso ");
+
+                    if (txtNome.getText().equals(tabela.getValueAt(i, 0)) && (txtTelefone.getText().equals(tabela.getValueAt(i, 1)))) {
+
+                        System.out.println(txtNome.getText());
+                        System.out.println(tabela.getValueAt(i, 0));
+
+                        System.out.println(txtTelefone.getText());
+                        System.out.println(tabela.getValueAt(i, 1));
+                        JOptionPane.showMessageDialog(null, "Nenhum dado modificado, altere os dados para validar a atualização", "ATENÇÃO", JOptionPane.OK_OPTION);
+                    } else {
+                        conexao = DriverManager.getConnection(sql);
+                        pstm = conexao.prepareStatement(sql2);
+                        pstm.setString(1, txtNome.getText());
+                        pstm.setString(2, txtTelefone.getText());
+                        pstm.setString(3, txtRowId.getText());
+                        pstm.executeUpdate();
+                        conexao.close();
+                        tabela.setValueAt(txtNome.getText(), i, 0);
+                        tabela.setValueAt(txtTelefone.getText(), i, 1);
+                        clearCampos();
+                        JOptionPane.showMessageDialog(null, "Contato atualizado com sucesso ");
+                    }
                 }
             }
         } catch (Exception e) {
@@ -431,17 +470,18 @@ public class TelaInicio extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Selecione um contato para Exluir ", "ATENÇÃO", JOptionPane.OK_OPTION);
             } else {
                 conexao = DriverManager.getConnection(conn);
-            pstm = conexao.prepareStatement(del);
-            pstm.setString(1, txtRowId.getText());
-            int opt = JOptionPane.showConfirmDialog(null, "Deseja mesmo excluir o contato \nEssa ação não podera ser desfeita", "ATENÇÃO", JOptionPane.YES_NO_OPTION);
+                pstm = conexao.prepareStatement(del);
+                pstm.setString(1, txtRowId.getText());
+                int opt = JOptionPane.showConfirmDialog(null, "Deseja mesmo excluir o contato \nEssa ação não podera ser desfeita", "ATENÇÃO", JOptionPane.YES_NO_OPTION);
 
-            if (opt == JOptionPane.YES_OPTION) {
-                pstm.executeUpdate();
-                tabela.removeRow(tblContatos.getSelectedRow());
-            } else {
-                clearCampos();
+                if (opt == JOptionPane.YES_OPTION) {
+                    pstm.executeUpdate();
+                    tabela.removeRow(tblContatos.getSelectedRow());
+                } else {
+                    clearCampos();
+                }
             }
-            }
+            clearCampos();
             conexao.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "ERRO AO EXCLUIR CONTATO " + e, " ATENÇÃO ", JOptionPane.OK_OPTION);
@@ -485,7 +525,7 @@ public class TelaInicio extends javax.swing.JFrame {
     private void fillTable() {
 
         String sql = "jdbc:sqlite:contatos.db";
-        String sql2 = "SELECT * FROM contatos";
+        String sql2 = "SELECT * FROM contatos ORDER BY nome COLLATE NOCASE ASC";
         try {
             DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
 
@@ -517,6 +557,5 @@ public class TelaInicio extends javax.swing.JFrame {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "ERRO AO PESQUISAR CONTATOS NO BANCO DE DADOS -> " + e, "ATENÇÃO", JOptionPane.OK_OPTION);
         }
-
     }
 }
