@@ -23,10 +23,10 @@ public class TelaInicio extends javax.swing.JFrame {
     public TelaInicio() {
         
         initComponents();
-        fillTable();
+        connectDb();
         txtTelefone.setFocusLostBehavior(JFormattedTextField.COMMIT);
         txtRowId.setVisible(false);
-        connectDb();
+        fillTable();
         tblContatos.setRowSelectionAllowed(true);
         tblContatos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         clearCampos();
