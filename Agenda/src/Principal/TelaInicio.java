@@ -1,39 +1,36 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Principal;
 
 import java.sql.*;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFormattedTextField;
 import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.MaskFormatter;
 import net.proteanit.sql.DbUtils;
 
-
-/**
- *
- * @author Dmitruk
- */
 public class TelaInicio extends javax.swing.JFrame {
 
     private Connection conexao;
     private PreparedStatement pstm;
     private ResultSet rs;
-
-    /**
+        /**
      * Creates new form TelaInicio
      */
     public TelaInicio() {
+        
         initComponents();
         fillTable();
         txtTelefone.setFocusLostBehavior(JFormattedTextField.COMMIT);
         txtRowId.setVisible(false);
         connectDb();
-        txtTelefone.setDocument(new LimitaCaracteres(15, LimitaCaracteres.TipoEntrada.TELEFONE));
+        tblContatos.setRowSelectionAllowed(true);
+        tblContatos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         clearCampos();
-        txtTelefone.setText(null);
+
     }
 
     /**
@@ -205,7 +202,7 @@ public class TelaInicio extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnUpdate, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -215,8 +212,7 @@ public class TelaInicio extends javax.swing.JFrame {
                                 .addComponent(btnClear, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(18, 18, 18)
-                                .addComponent(jLabel6)))
-                        .addGap(7, 7, 7))
+                                .addComponent(jLabel6))))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -227,7 +223,7 @@ public class TelaInicio extends javax.swing.JFrame {
                             .addComponent(txtPesquisar, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(txtNome)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(txtTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(txtTelefone, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(txtRowId, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(8, 8, 8))
@@ -273,6 +269,7 @@ public class TelaInicio extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    
     private void txtPesquisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPesquisarActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtPesquisarActionPerformed
@@ -315,6 +312,7 @@ public class TelaInicio extends javax.swing.JFrame {
 
     private void txtTelefoneFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtTelefoneFocusGained
         // TODO add your handling code here
+        
     }//GEN-LAST:event_txtTelefoneFocusGained
 
     /**
@@ -397,7 +395,7 @@ public class TelaInicio extends javax.swing.JFrame {
             if (txtNome.getText().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "O campo nome deve ser preenchido para adicionar um contato! ", "ATENÇÃO", JOptionPane.OK_OPTION);
             } else if (i < 15){
-                JOptionPane.showMessageDialog(null, "Preencha corretamente o numero de telefone para adicionar um contato","ANTEÇÃO", JOptionPane.OK_OPTION);
+                JOptionPane.showMessageDialog(null, "Numero de Telefone contém espaços em branco \n Preencha corretamente para adicionar um contato","ANTEÇÃO", JOptionPane.OK_OPTION);
             } else{
                 conexao = DriverManager.getConnection(sql2);
                 pstm = conexao.prepareStatement(sql);
@@ -408,9 +406,12 @@ public class TelaInicio extends javax.swing.JFrame {
                 DefaultTableModel tabela = (DefaultTableModel) tblContatos.getModel();
                 Object[] dados = {txtNome.getText(), txtTelefone.getText()};
                 tabela.addRow(dados);
+                ((DefaultTableModel) tblContatos.getModel()).setRowCount(0);
+                fillTable();
                 JOptionPane.showMessageDialog(null, "Contato Adicionado Com Sucesso!");
                 clearCampos();
                 conexao.close();
+                
             }
 
         } catch (Exception e) {
@@ -513,15 +514,15 @@ public class TelaInicio extends javax.swing.JFrame {
     }
 
     private void clearCampos() {
-        tblContatos.clearSelection();
         txtNome.setText(null);
+        tblContatos.clearSelection();
         txtTelefone.setText(null);
         txtPesquisar.setText(null);
         txtRowId.setText(null);
         btnAdd.setEnabled(true);
-
     }
 
+    
     private void fillTable() {
 
         String sql = "jdbc:sqlite:contatos.db";
